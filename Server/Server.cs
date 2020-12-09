@@ -9,6 +9,11 @@ using System.Threading.Tasks;
 
 namespace Server
 {
+    // TODO: maybe server should act like API?
+    //// then we can create for comfortable interface (some sort of library) for it 
+    //// and interact in better way through well-builded requests
+    //// should take this idea for better consideration
+
     // chat
     public class Server
     {
@@ -16,6 +21,11 @@ namespace Server
         private static AppSettings settings;
         private static int port = 12345;
 
+        // TODO: maybe add some timer, for example 10 minute, to check disconnected client to remove them from repos
+        // TODO: change this collection to database
+        //// there should be some way lazy data loading
+        // TODO: and maybe rewrite it with HTTP protocol and emulate REST API.
+        //// It could be a good idea for managing clients via database
         private ConcurrentDictionary<Guid, Client> clients = new();
 
         public Server()
@@ -29,10 +39,16 @@ namespace Server
             port = settings.Port;
 
             // TODO: change IPAddress.Any
-            // or not
+            //// or not
             listener = new TcpListener(IPAddress.Any, port);
             Logger.Info($"Server initialized on port {port}");
         }
+
+        // TODO: should add some sort of abstraction for private/group chats
+        //// For example, create some sorts of rooms with unique id which will be inserted
+        //// in Message protocol
+        //// Something like "RoomId"
+        //// Then we can use ToId to reply on certain messages in private and group chats
 
         // TODO: add appropriete way to remove clients
         public void Run()

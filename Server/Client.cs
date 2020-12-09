@@ -23,6 +23,10 @@ namespace Server
             client = c;
         }
 
+        // TODO: maybe sent to client his guid when he just connected
+        // TODO: add database to save credentials
+        // TODO: add some way of maintaining two-way connection between server and client
+        //// maybe with two sockets in different Tasks/Threads?
         public void Process()
         {
             Logger.Info($"Client <{id}> is being processed.");
@@ -45,6 +49,11 @@ namespace Server
                 var msg = $"{response.FromUsername} <{id}>: {response.GetStringData()}";
                 WriteMessage(new()
                 {
+                    // TODO: generate some guid for server
+                    //// maybe save it in server class with this info
+                    //// or create spectial class "Credential" as a format for
+                    //// for keeping user's data and server's data as well.
+                    //// Of course there should be some kind of administration
                     FromId = new Guid("77777777-7777-7777-7777-777777777777"),
                     FromUsername = "Server",
                     ToId = id,
@@ -55,13 +64,11 @@ namespace Server
             }
             catch (Exception ex)
             {
-                //Logger.Debug("Catch block");
                 //throw;
                 Logger.Exception(ex.Message);
             }
             finally
             {
-                //Logger.Debug("Finally block");
                 Close();
                 Logger.Info($"Client <{Id}> disconnected.");
             }
