@@ -23,7 +23,6 @@ namespace Server
 
         public void Process()
         {
-            //Logger.Info($"Started processing client with id {id}");
             Logger.Info($"Client <{id}> is being processed.");
             try
             {
@@ -32,7 +31,7 @@ namespace Server
                 var response = ReadMessage();
                 Logger.Info($"{response.Username}: {response.Msg}");
 
-                var msg = $"{response.Username} <{id}>: {response.Msg}";
+                var msg = $"\"{response.Username} <{id}>: {response.Msg}\"";
                 WriteMessage(msg);
                 Logger.Info($"respone to {response.Username}: {msg}");
             }
@@ -46,15 +45,12 @@ namespace Server
             {
                 Logger.Debug("Finally block");
                 Close();
-                //Logger.Info($"Client with id {Id} has been closed.");
                 Logger.Info($"Client <{Id}> closed.");
             }
         }
 
         private (string Username, string Msg) ReadMessage()
         {
-            //byte[] data = Array.Empty<byte>();
-
             string username = string.Empty;
             string msg = string.Empty;
 
