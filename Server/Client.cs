@@ -30,25 +30,28 @@ namespace Server
             {
                 ns = client.GetStream();
 
+                #region deprecated
                 //var response = ReadMessage();
                 //Logger.Info($"{response.Username}: {response.Msg}");
 
                 //var msg = $"\"{response.Username} <{id}>: {response.Msg}\"";
                 //WriteMessage(msg);
                 //Logger.Info($"respone to {response.Username}: {msg}");
+                #endregion
 
-                var response = ReadProtocolMessage();
+                var response = ReadMessage();
                 Logger.Info($"{response.FromUsername}: {response.GetStringData()}");
 
-                var msg = $"\"{response.FromUsername} <{id}>: {response.GetStringData()}\"";
-                WriteProtocolMessage(new()
+                var msg = $"{response.FromUsername} <{id}>: {response.GetStringData()}";
+                WriteMessage(new()
                 {
                     FromId = new Guid("77777777-7777-7777-7777-777777777777"),
                     FromUsername = "Server",
+                    ToId = id,
                     Command = Command.SendPrivateMessage,
                     Data = Encoding.UTF8.GetBytes(msg)
                 });
-                Logger.Info($"respone to {response.FromUsername}: {msg}");
+                Logger.Info($"response to {response.FromUsername}: \"{msg}\"");
             }
             catch (Exception ex)
             {
@@ -60,35 +63,38 @@ namespace Server
             {
                 //Logger.Debug("Finally block");
                 Close();
-                Logger.Info($"Client <{Id}> closed.");
+                Logger.Info($"Client <{Id}> disconnected.");
             }
         }
 
-        private (string Username, string Msg) ReadMessage()
-        {
-            string username = string.Empty;
-            string msg = string.Empty;
+        #region deprecated
+        //private (string Username, string Msg) ReadMessage()
+        //{
+        //    string username = string.Empty;
+        //    string msg = string.Empty;
 
-            using (BinaryReader r = new(ns, Encoding.UTF8, true))
-            {
-                username = r.ReadString();
-                msg = r.ReadString();
-            }
-            Logger.Debug($"Readed data: {username} - {msg}");
+        //    using (BinaryReader r = new(ns, Encoding.UTF8, true))
+        //    {
+        //        username = r.ReadString();
+        //        msg = r.ReadString();
+        //    }
+        //    Logger.Debug($"Readed data: {username} - {msg}");
 
-            return (username, msg);
-        }
+        //    return (username, msg);
+        //}
 
-        private void WriteMessage(string msg)
-        {
-            using (BinaryWriter w = new(ns, Encoding.UTF8, true))
-            {
-                w.Write(msg);
-                w.Flush();
-            }
-        }
+        
+        //private void WriteMessage(string msg)
+        //{
+        //    using (BinaryWriter w = new(ns, Encoding.UTF8, true))
+        //    {
+        //        w.Write(msg);
+        //        w.Flush();
+        //    }
+        //}
+        #endregion
 
-        private Message ReadProtocolMessage()
+        private Message ReadMessage()
         {
             Message msg = null;
             using (BinaryReader r = new(ns, Encoding.UTF8, true))
@@ -98,11 +104,11 @@ namespace Server
             return msg;
         }
 
-        private void WriteProtocolMessage(Message msg)
+        private void WriteMessage(Message msg)
         {
             using (BinaryWriter w = new(ns, Encoding.UTF8, true))
             {
-                w.Write(JsonConvert.SerializeObject(msg));
+                w.Write(JsonConvert.SerializeObject(msg, Formatting.Indented));
                 w.Flush();
             }
         }
