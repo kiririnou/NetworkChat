@@ -1,0 +1,128 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/koko/repos/NetworkChat/TestClient2/TestClient2.csproj": {}
+  },
+  "projects": {
+    "/home/koko/repos/NetworkChat/Protocol/Protocol.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/koko/repos/NetworkChat/Protocol/Protocol.csproj",
+        "projectName": "Protocol",
+        "projectPath": "/home/koko/repos/NetworkChat/Protocol/Protocol.csproj",
+        "packagesPath": "/home/koko/.nuget/packages/",
+        "outputPath": "/home/koko/repos/NetworkChat/Protocol/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/koko/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.1"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.1": {
+            "targetAlias": "netstandard2.1",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/5.0.101/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/koko/repos/NetworkChat/TestClient2/TestClient2.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/koko/repos/NetworkChat/TestClient2/TestClient2.csproj",
+        "projectName": "TestClient2",
+        "projectPath": "/home/koko/repos/NetworkChat/TestClient2/TestClient2.csproj",
+        "packagesPath": "/home/koko/.nuget/packages/",
+        "outputPath": "/home/koko/repos/NetworkChat/TestClient2/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/koko/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net5.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net5.0": {
+            "targetAlias": "net5.0",
+            "projectReferences": {
+              "/home/koko/repos/NetworkChat/Protocol/Protocol.csproj": {
+                "projectPath": "/home/koko/repos/NetworkChat/Protocol/Protocol.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net5.0": {
+          "targetAlias": "net5.0",
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/5.0.101/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

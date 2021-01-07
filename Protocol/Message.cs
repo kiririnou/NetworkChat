@@ -9,7 +9,7 @@ namespace Protocol
     {
         public Guid?     FromId          { get; set; }
         public string?   FromUsername    { get; set; }
-        public Guid?     ToId            { get; set; }
+        // public Guid?     ToId            { get; set; }
         //public string?   ToUsername      { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public Command?  Command         { get; set; }

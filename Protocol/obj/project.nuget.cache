@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "KpTBmObYsoXDuYIcJ6Kc1V0YVEiYhnY209oQj4qxKL12OtBeZeBgqNF37GNeNYz8tDgNUq8f0HKILQlS6FWpVA==",
+  "dgSpecHash": "y0Sm1QfKAOagGwmxvk3YMOCzBgcA31TnQXtVHkvJ5r8FDGPA7zVInBKbJGSFtD9vf2PzTp+Ml4JS/2AX0VNJlg==",
   "success": true,
-  "projectFilePath": "V:\\repos\\itstep\\networking\\hw081220\\NetworkChat\\Protocol\\Protocol.csproj",
+  "projectFilePath": "/home/koko/repos/NetworkChat/Protocol/Protocol.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Kiririno\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512"
+    "/home/koko/.nuget/packages/newtonsoft.json/12.0.3/newtonsoft.json.12.0.3.nupkg.sha512"
   ],
   "logs": []
 }

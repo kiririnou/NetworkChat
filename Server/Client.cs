@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Protocol;
+using Server.TypeExtensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,56 +12,37 @@ namespace Server
 {
     public class Client
     {
-        private Guid id = Guid.NewGuid();
-        public Guid Id => id;
-
-        //private TcpListener _listener;
-        private TcpClient client;
-        private NetworkStream ns;
+        private Core.Client client;
+        private UserInfo info = new(Guid.NewGuid());
+        public UserInfo Info => info;
 
         public Client(TcpClient c)
         {
-            client = c;
+            client = new(c);
         }
 
-        // TODO: maybe sent to client his guid when he just connected
-        // TODO: add database to save credentials
-        // TODO: add some way of maintaining two-way connection between server and client
-        //// maybe with two sockets in different Tasks/Threads?
+        // So, the algorithm is next:
+        // client connects with login and password -> server check credentials,
+        /// if exist     => generate token, add it to db and send to client,
+        /// if not exist => send message with error
+        // all user actions need a token to complete
+        // then user send message -> server takes it -> add to db
+        // and then clients should request new updates 
         public void Process()
         {
-            Logger.Info($"Client <{id}> is being processed.");
             try
             {
-                ns = client.GetStream();
+                var request = client.ReadMessage();
 
-                #region deprecated
-                //var response = ReadMessage();
-                //Logger.Info($"{response.Username}: {response.Msg}");
+                var test = JsonConvert.SerializeObject(request, Formatting.Indented);
+                Logger.Debug(test);
+                Logger.Debug(request.GetStringData());
 
-                //var msg = $"\"{response.Username} <{id}>: {response.Msg}\"";
-                //WriteMessage(msg);
-                //Logger.Info($"respone to {response.Username}: {msg}");
-                #endregion
-
-                var response = ReadMessage();
-                Logger.Info($"{response.FromUsername}: {response.GetStringData()}");
-
-                var msg = $"{response.FromUsername} <{id}>: {response.GetStringData()}";
-                WriteMessage(new()
+                switch (request.Command)
                 {
-                    // TODO: generate some guid for server
-                    //// maybe save it in server class with this info
-                    //// or create spectial class "Credential" as a format for
-                    //// for keeping user's data and server's data as well.
-                    //// Of course there should be some kind of administration
-                    FromId = new Guid("77777777-7777-7777-7777-777777777777"),
-                    FromUsername = "Server",
-                    ToId = id,
-                    Command = Command.SendPrivateMessage,
-                    Data = Encoding.UTF8.GetBytes(msg)
-                });
-                Logger.Info($"response to {response.FromUsername}: \"{msg}\"");
+                    case Command.Login: Login(); break;
+                    default: UnknownCommand(); break;
+                }
             }
             catch (Exception ex)
             {
@@ -69,63 +51,27 @@ namespace Server
             }
             finally
             {
-                Close();
-                Logger.Info($"Client <{Id}> disconnected.");
-            }
-        }
-
-        #region deprecated
-        //private (string Username, string Msg) ReadMessage()
-        //{
-        //    string username = string.Empty;
-        //    string msg = string.Empty;
-
-        //    using (BinaryReader r = new(ns, Encoding.UTF8, true))
-        //    {
-        //        username = r.ReadString();
-        //        msg = r.ReadString();
-        //    }
-        //    Logger.Debug($"Readed data: {username} - {msg}");
-
-        //    return (username, msg);
-        //}
-
-        
-        //private void WriteMessage(string msg)
-        //{
-        //    using (BinaryWriter w = new(ns, Encoding.UTF8, true))
-        //    {
-        //        w.Write(msg);
-        //        w.Flush();
-        //    }
-        //}
-        #endregion
-
-        private Message ReadMessage()
-        {
-            Message msg = null;
-            using (BinaryReader r = new(ns, Encoding.UTF8, true))
-            {
-                msg = JsonConvert.DeserializeObject<Message>(r.ReadString());
-            }
-            return msg;
-        }
-
-        private void WriteMessage(Message msg)
-        {
-            using (BinaryWriter w = new(ns, Encoding.UTF8, true))
-            {
-                w.Write(JsonConvert.SerializeObject(msg, Formatting.Indented));
-                w.Flush();
-            }
-        }
-
-        public void Close()
-        {
-            if (ns != null)
-                ns.Close();
-            if (client != null)
                 client.Close();
+                Logger.Info($"Client <{Info.Id}> disconnected.");
+            }
+        }
+
+        public void Login()
+        {
+
+        }
+
+        public void UnknownCommand()
+        {
+            string msg = "Incorrect command";
+            client.WriteMessage(new()
+            {
+                FromId = Server.Info.Id,
+                FromUsername = Server.Info.Name,
+                // ToId = Info.Id,
+                Command = Command.SendPrivateMessage,
+                Data = msg.ToBytes()
+            });
         }
     }
 }

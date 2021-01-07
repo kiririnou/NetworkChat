@@ -12,5 +12,6 @@ namespace Protocol
         //ReceiveGroupMessage,
         SendFile,
         //ReceiveFile,
+        Login
     }
 }

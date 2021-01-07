@@ -21,6 +21,8 @@ namespace Server
         private static AppSettings settings;
         private static int port = 12345;
 
+        public static readonly UserInfo Info = new(new Guid("77777777-7777-7777-7777-777777777777"), "Server");
+
         // TODO: maybe add some timer, for example 10 minute, to check disconnected client to remove them from repos
         // TODO: change this collection to database
         //// there should be some way lazy data loading
@@ -65,7 +67,7 @@ namespace Server
 
                     Client client = new(conn);
 
-                    clients.TryAdd(client.Id, client);
+                    clients.TryAdd(client.Info.Id, client);
 
                     Task task = new Task(client.Process);
                     task.Start();
@@ -77,7 +79,7 @@ namespace Server
             }
             finally
             {
-                if (listener is not null)
+                if (listener != null)
                     listener.Stop();
             }
         }
