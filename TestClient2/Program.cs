@@ -3,6 +3,7 @@ using Protocol;
 using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace TestClient2
 {
@@ -23,12 +24,20 @@ namespace TestClient2
             {
                 Command = Command.Login,
                 Data = Encoding.UTF8.GetBytes(
-                    JsonConvert.SerializeObject(new Login {
+                    JsonConvert.SerializeObject(new Login 
+                    {
                         Name = login,
                         Password = password
                     }, Formatting.Indented))
             });
 
+            //Thread.Sleep(100);
+
+            var response = client.ReadMessage();
+            var msg = response.GetStringData();
+
+            Console.WriteLine($"{msg}");
+            Console.ReadLine();
         }
     }
 }

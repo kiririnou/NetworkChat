@@ -52,24 +52,26 @@
     ]
   },
   "packageFolders": {
-    "/home/koko/.nuget/packages/": {}
+    "C:\\Users\\Kiririno\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/koko/repos/NetworkChat/Protocol/Protocol.csproj",
+      "projectUniqueName": "V:\\repos\\NetworkChat\\Protocol\\Protocol.csproj",
       "projectName": "Protocol",
-      "projectPath": "/home/koko/repos/NetworkChat/Protocol/Protocol.csproj",
-      "packagesPath": "/home/koko/.nuget/packages/",
-      "outputPath": "/home/koko/repos/NetworkChat/Protocol/obj/",
+      "projectPath": "V:\\repos\\NetworkChat\\Protocol\\Protocol.csproj",
+      "packagesPath": "C:\\Users\\Kiririno\\.nuget\\packages\\",
+      "outputPath": "V:\\repos\\NetworkChat\\Protocol\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/koko/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\Kiririno\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netstandard2.1"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -108,7 +110,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/5.0.101/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.101\\RuntimeIdentifierGraph.json"
       }
     }
   }

@@ -34,7 +34,7 @@ namespace TestClient
                         {
                             //FromId = new Guid("11111111-1111-1111-1111-111111111111"),
                             FromUsername = username,
-                            Command = Command.SendPrivateMessage,
+                            Command = Command.SendMessage,
                             Data = Encoding.UTF8.GetBytes(msg)
                         };
 

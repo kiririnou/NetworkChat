@@ -8,6 +8,7 @@ namespace Server.Models
     {
         List<User> GetAllUsers();
         User GetUser(Guid id);
+        User GetUserByName(string name);
         bool AddUser(User user);
         bool DeleteUser(Guid id);
         bool UpdateUser(User newUser);   
@@ -19,9 +20,9 @@ namespace Server.Models
 
         public UserService()
         {
-            repos = new();
+            repos = Repository.GetRepository();
         }
-
+        
         public List<User> GetAllUsers()
         {
             return repos.Users.ToList();
@@ -30,6 +31,11 @@ namespace Server.Models
         public User GetUser(Guid id)
         {
             return repos.Users.SingleOrDefault(u => u.UserId == id);
+        }
+
+        public User GetUserByName(string name)
+        {
+            return repos.Users.SingleOrDefault(u => u.Name == name);
         }
 
         public bool AddUser(User user)

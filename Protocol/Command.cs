@@ -6,12 +6,11 @@ namespace Protocol
 {
     public enum Command
     {
-        SendPrivateMessage,
-        //ReceivePrivateMessage,
-        SendGroupMessage,
-        //ReceiveGroupMessage,
+        Login,
+        Register,
+        SendMessage,
+        GetMessages,
         SendFile,
-        //ReceiveFile,
-        Login
+        GetFile,
     }
 }
