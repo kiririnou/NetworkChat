@@ -180,7 +180,7 @@ namespace Server
 
             var res = textMessagesService.AddMessage(new()
             {
-                Text = data[1],
+                Text = text,
                 Timestamp = message.Timestamp.Value,
                 UserId = _user.UserId,
                 User = _user
@@ -258,14 +258,14 @@ namespace Server
             return (token, text);
         }
 
-        private bool ValidateToken(string msgdata)
-        {
-            var data = msgdata.Split(new[] { ':' }, 2);
-            var token = data[0];
-            var text = data[1];
+        //private bool ValidateToken(string msgdata)
+        //{
+        //    var data = msgdata.Split(new[] { ':' }, 2);
+        //    var token = data[0];
+        //    var text = data[1];
 
-            return CheckToken(token);
-        }
+        //    return CheckToken(token);
+        //}
 
         private bool CheckToken(string token)
         {
