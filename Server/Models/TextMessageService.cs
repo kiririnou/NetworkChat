@@ -9,7 +9,7 @@ namespace Server.Models
     public interface ITextMessageService
     {
         List<TextMessage> GetAllMessages();
-        List<TextMessage> GetMessagesAfterTimestamp(DateTime timestamp);
+        List<TextMessage> GetMessagesFromTimestamp(DateTime timestamp);
         TextMessage GetMessage(Guid id);
         TextMessage GetMessageFromUser(Guid uid);
         bool AddMessage(TextMessage msg);
@@ -31,7 +31,7 @@ namespace Server.Models
             return repos.TextMessages.ToList();
         }
 
-        public List<TextMessage> GetMessagesAfterTimestamp(DateTime timestamp)
+        public List<TextMessage> GetMessagesFromTimestamp(DateTime timestamp)
         {
             return repos.TextMessages.Where(m => m.Timestamp >= timestamp).ToList();
         }

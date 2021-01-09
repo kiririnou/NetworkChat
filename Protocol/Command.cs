@@ -11,7 +11,7 @@ namespace Protocol
         Register,
         SendMessage,
         GetMessages,
-        GetMessagesAfter,
+        GetMessagesFromTimestamp,
         SendFile,
         GetFile,
         Error

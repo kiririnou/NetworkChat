@@ -27,9 +27,9 @@ namespace Server
 
         private string _token { get; set; }
 
-        private UserService userService = new();
-        private ActiveUserService activeUserService = new();
-        private TextMessageService textMessagesService = new();
+        private IUserService userService = new UserService();
+        private IActiveUserService activeUserService = new ActiveUserService();
+        private ITextMessageService textMessagesService = new TextMessageService();
 
         public Client(TcpClient c)
         {
@@ -115,7 +115,6 @@ namespace Server
                 _token = token;
             }
 
-            Logger.Debug(">>> STARTED WRITING DATA");
             client.WriteMessage(new()
             {
                 FromId = Server.Info.Id,
@@ -123,7 +122,6 @@ namespace Server
                 Command = Command.SendMessage,
                 Data = msg.ToBytes()
             });
-            Logger.Debug(">>> ENDED WRITING DATA");
         }
 
         public void Logout()
@@ -166,9 +164,7 @@ namespace Server
 
         public void SendMessage(Message message)
         {
-            var data = message.GetStringData().Split(new[] { ':' }, 2);
-            var token = data[0];
-            var text = data[1];
+            var (token, text) = SplitTextMessage(message.GetStringData());
 
             if (!CheckToken(token))
             {
@@ -198,9 +194,7 @@ namespace Server
 
         public void GetMessage(Message message)
         {
-            var data = message.GetStringData().Split(new[] { ':' }, 2);
-            var token = data[0];
-            var text = data[1];
+            var (token, text) = SplitTextMessage(message.GetStringData());
 
             if (!CheckToken(token))
             {
@@ -214,11 +208,15 @@ namespace Server
                 });
             }
 
-            int quantity = 0;
-            if (!int.TryParse(text, out quantity))
+            if (!int.TryParse(text, out int quantity))
                 quantity = 100;
 
-            var msgs = textMessagesService.GetAllMessages().OrderByDescending(m => m.Timestamp).Take(quantity);
+            var msgs = textMessagesService
+                .GetAllMessages()
+                .OrderByDescending(m => m.Timestamp)
+                .Take(quantity)
+                .Reverse()
+                .ToList();
 
             var r = msgs.Select(m => new TextMessage 
             {
@@ -249,6 +247,15 @@ namespace Server
                 Command = Command.SendMessage,
                 Data = msg.ToBytes()
             });
+        }
+
+        private (string token, string text) SplitTextMessage(string rawMessage)
+        {
+            var data = rawMessage.Split(new[] { ':' }, 2);
+            var token = data[0];
+            var text = data[1];
+
+            return (token, text);
         }
 
         private bool ValidateToken(string msgdata)
