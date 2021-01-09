@@ -6,6 +6,7 @@ using Server.TypeExtensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,14 +20,21 @@ namespace Server
         private UserInfo info = new(Guid.NewGuid());
         public UserInfo Info => info;
 
-        private User user { get; set; }
+        public bool Active { get; private set; } = false;
+
+        private User _user { get; set; }
+        public User User => _user;
+
         private string _token { get; set; }
-        private UserService userService = new UserService();
-        private ActiveUserService activeUserService = new ActiveUserService();
+
+        private UserService userService = new();
+        private ActiveUserService activeUserService = new();
+        private TextMessageService textMessagesService = new();
 
         public Client(TcpClient c)
         {
             client = new(c);
+            Active = true;
         }
 
         // So, the algorithm is next:
@@ -40,23 +48,28 @@ namespace Server
         {
             try
             {
-                var request = client.ReadMessage();
-
-                var test = JsonConvert.SerializeObject(request, Formatting.Indented);
-                Logger.Debug(test);
-                Logger.Debug(request.GetStringData());
-
-                var data = request.GetStringData();
-
-                switch (request.Command!)
+                bool done = false;
+                while (!done)
                 {
-                    case Command.Login:         Login(data); break;
-                    case Command.Register:      Register(data); break;
-                    case Command.SendMessage:   break;
-                    case Command.GetMessages:   break;
-                    case Command.SendFile:      break;
-                    case Command.GetFile:       break;
-                    default: UnknownCommand();  break;
+                    var request = client.ReadMessage();
+
+                    //var test = JsonConvert.SerializeObject(request, Formatting.Indented);
+                    //Logger.Debug(test);
+                    //Logger.Debug(request.GetStringData());
+
+                    var data = request.GetStringData();
+
+                    switch (request.Command!)
+                    {
+                        case Command.Login: Login(data);                break;
+                        case Command.Logout: done = true;               break;
+                        case Command.Register: Register(data);          break;
+                        case Command.SendMessage: SendMessage(request); break;
+                        case Command.GetMessages: GetMessage(request);  break;
+                        case Command.SendFile: break;
+                        case Command.GetFile: break;
+                        default: UnknownCommand(); break;
+                    }
                 }
             }
             catch (Exception ex)
@@ -66,9 +79,10 @@ namespace Server
             }
             finally
             {
-                if (user != null)
+                if (_user != null)
                     Logout();
                 client.Close();
+                Active = false;
                 Logger.Info($"Client <{Info.Id}> disconnected.");
             }
         }
@@ -79,20 +93,22 @@ namespace Server
             Login login = JsonConvert.DeserializeObject<Login>(data);
             Logger.Debug($"Accepted login data: {login.Name}: {login.Password}");
 
-            user = userService.GetUserByName(login.Name);
-            string msg = "Incorrect login or password";
+            _user = userService.GetUserByName(login.Name);
+            string msg = "";
 
-            if (user == null || user.Password != login.Password)
+            if (_user == null || _user.Password != login.Password)
+            {
                 msg = "Incorrect login or password";
-            else if (user.Password == login.Password)
+            }
+            else if (_user.Password == login.Password)
             {
                 string token = Guid.NewGuid().ToString();
                 Logger.Debug($"New token: {token}");
                 activeUserService.AddActiveUser(new()
                 {
                     Token = token,
-                    UserId = user.UserId,
-                    User = user
+                    UserId = _user.UserId,
+                    User = _user
                 });
                 msg = $"Successfully logined: {token}";
 
@@ -100,7 +116,7 @@ namespace Server
             }
 
             Logger.Debug(">>> STARTED WRITING DATA");
-            client.WriteMessage(new Message
+            client.WriteMessage(new()
             {
                 FromId = Server.Info.Id,
                 FromUsername = Server.Info.Name,
@@ -148,6 +164,81 @@ namespace Server
             });
         }
 
+        public void SendMessage(Message message)
+        {
+            var data = message.GetStringData().Split(new[] { ':' }, 2);
+            var token = data[0];
+            var text = data[1];
+
+            if (!CheckToken(token))
+            {
+                var msg = "Incorrect token. Please try login again";
+                client.WriteMessage(new()
+                {
+                    FromId = Server.Info.Id,
+                    FromUsername = Server.Info.Name,
+                    Command = Command.Error,
+                    Data = msg.ToBytes()
+                });
+            }
+
+            var res = textMessagesService.AddMessage(new()
+            {
+                Text = data[1],
+                Timestamp = message.Timestamp.Value,
+                UserId = _user.UserId,
+                User = _user
+            });
+
+            if (res)
+                Logger.Debug("SendMessage: successfully added new message");
+            else
+                Logger.Debug("SendMessage: nothing has been added");
+        }
+
+        public void GetMessage(Message message)
+        {
+            var data = message.GetStringData().Split(new[] { ':' }, 2);
+            var token = data[0];
+            var text = data[1];
+
+            if (!CheckToken(token))
+            {
+                var msg = "Incorrect token";
+                client.WriteMessage(new()
+                {
+                    FromId = Server.Info.Id,
+                    FromUsername = Server.Info.Name,
+                    Command = Command.Error,
+                    Data = msg.ToBytes()
+                });
+            }
+
+            int quantity = 0;
+            if (!int.TryParse(text, out quantity))
+                quantity = 100;
+
+            var msgs = textMessagesService.GetAllMessages().OrderByDescending(m => m.Timestamp).Take(quantity);
+
+            var r = msgs.Select(m => new TextMessage 
+            {
+                TextMessageId = m.TextMessageId,
+                Text = m.Text,
+                Timestamp = m.Timestamp,
+                UserId = m.UserId
+            }).ToList();
+
+            var response = JsonConvert.SerializeObject(r, Formatting.Indented);
+
+            client.WriteMessage(new()
+            {
+                FromId = Server.Info.Id,
+                FromUsername = Server.Info.Name,
+                Command = Command.SendMessage,
+                Data = response.ToBytes()
+            });
+        }
+
         public void UnknownCommand()
         {
             string msg = "Incorrect command";
@@ -158,6 +249,20 @@ namespace Server
                 Command = Command.SendMessage,
                 Data = msg.ToBytes()
             });
+        }
+
+        private bool ValidateToken(string msgdata)
+        {
+            var data = msgdata.Split(new[] { ':' }, 2);
+            var token = data[0];
+            var text = data[1];
+
+            return CheckToken(token);
+        }
+
+        private bool CheckToken(string token)
+        {
+            return token == _token;            
         }
     }
 }

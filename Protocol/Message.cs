@@ -14,10 +14,11 @@ namespace Protocol
         [JsonConverter(typeof(StringEnumConverter))]
         public Command?  Command         { get; set; }
         public byte[]?   Data            { get; set; }
+        public DateTime? Timestamp       { get; set; } = DateTime.Now;
 
-        public string GetStringData()
+        public string? GetStringData()
         {
-            return System.Text.Encoding.UTF8.GetString(Data!);
+            return System.Text.Encoding.UTF8.GetString(Data);
         }
     }
 }

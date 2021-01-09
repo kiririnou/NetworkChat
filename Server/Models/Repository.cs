@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
 namespace Server.Models
@@ -9,6 +10,7 @@ namespace Server.Models
 
         public DbSet<User> Users { get; set; }
         public DbSet<ActiveUser> ActiveUsers { get; set; }
+        public DbSet<TextMessage> TextMessages { get; set; }
         //public DbSet<Identity> Identities { get; set; }
 
         private Repository() => Database.EnsureCreated();
@@ -32,14 +34,26 @@ namespace Server.Models
         public Guid UserId { get; set; }
         public string Name { get; set; }
         public string Password { get; set; }
+        
         //public Identity Identity { get; set; }
         public ActiveUser ActiveUser { get; set; }
+        public List<TextMessage> Messages { get; set; }
     }
 
     public class ActiveUser
     {
         public Guid ActiveUserId { get; set; }
         public string Token { get; set; }
+
+        public Guid UserId { get; set; }
+        public User User { get; set; }
+    }
+
+    public class TextMessage
+    {
+        public Guid TextMessageId { get; set; }
+        public string Text { get; set; }
+        public DateTime Timestamp { get; set; }
 
         public Guid UserId { get; set; }
         public User User { get; set; }

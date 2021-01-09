@@ -7,10 +7,13 @@ namespace Protocol
     public enum Command
     {
         Login,
+        Logout,
         Register,
         SendMessage,
         GetMessages,
+        GetMessagesAfter,
         SendFile,
         GetFile,
+        Error
     }
 }

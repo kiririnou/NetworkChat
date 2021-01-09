@@ -69,6 +69,17 @@ namespace Server.Models
             return deleted > 0;
         }
 
+        public bool DeleteAllActiveUsers()
+        {
+            var users = GetAllActiveUsers();
+            if (users == null || users.Count < 1)
+                return false;
+
+            repos.ActiveUsers.RemoveRange(users);
+            int deleted = repos.SaveChanges();
+            return deleted > 0;
+        }
+
         public bool UpdateActiveUser(ActiveUser newUser)
         {
             repos.ActiveUsers.Update(newUser);
