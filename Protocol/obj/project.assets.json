@@ -57,9 +57,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "V:\\repos\\NetworkChat\\Protocol\\Protocol.csproj",
-      "projectName": "Protocol",
-      "projectPath": "V:\\repos\\NetworkChat\\Protocol\\Protocol.csproj",
+      "projectUniqueName": "V:\\repos\\NetworkChat\\Protocol\\Core.csproj",
+      "projectName": "Core",
+      "projectPath": "V:\\repos\\NetworkChat\\Protocol\\Core.csproj",
       "packagesPath": "C:\\Users\\Kiririno\\.nuget\\packages\\",
       "outputPath": "V:\\repos\\NetworkChat\\Protocol\\obj\\",
       "projectStyle": "PackageReference",

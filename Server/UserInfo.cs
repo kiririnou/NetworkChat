@@ -4,10 +4,10 @@ namespace Server
 {
     public class UserInfo
     {
-        public Guid     Id      { get; set;}
-        public string   Name    { get; set; }
-    
-        public UserInfo() {}
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+
+        public UserInfo() { }
 
         public UserInfo(Guid id) => Id = id;
 

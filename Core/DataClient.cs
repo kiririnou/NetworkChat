@@ -2,16 +2,14 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json;
-using Core;
 
-namespace Server.Core
+namespace Core
 {
-    public class Client
+    public class DataClient
     {
         private TcpClient client;
-        private NetworkStream ns;
-
-        public Client(TcpClient c)
+        
+        public DataClient(TcpClient c)
         {
             client = c;
         }
@@ -19,7 +17,7 @@ namespace Server.Core
         public Message ReadMessage()
         {
             Message msg = null;
-            using (BinaryReader r = new(client.GetStream(), Encoding.UTF8, true))
+            using (BinaryReader r = new BinaryReader(client.GetStream(), Encoding.UTF8, true))
             {
                 msg = JsonConvert.DeserializeObject<Message>(r.ReadString());
             }
@@ -28,7 +26,7 @@ namespace Server.Core
 
         public void WriteMessage(Message msg)
         {
-            using (BinaryWriter w = new(client.GetStream(), Encoding.UTF8, true))
+            using (BinaryWriter w = new BinaryWriter(client.GetStream(), Encoding.UTF8, true))
             {
                 w.Write(JsonConvert.SerializeObject(msg, Formatting.Indented));
                 w.Flush();
@@ -37,8 +35,6 @@ namespace Server.Core
 
         public void Close()
         {
-            if (ns != null)
-                ns.Close();
             if (client != null)
                 client.Close();
         }

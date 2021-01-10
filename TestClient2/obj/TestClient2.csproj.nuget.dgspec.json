@@ -4,14 +4,14 @@
     "V:\\repos\\NetworkChat\\TestClient2\\TestClient2.csproj": {}
   },
   "projects": {
-    "V:\\repos\\NetworkChat\\Protocol\\Protocol.csproj": {
+    "V:\\repos\\NetworkChat\\Core\\Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "V:\\repos\\NetworkChat\\Protocol\\Protocol.csproj",
-        "projectName": "Protocol",
-        "projectPath": "V:\\repos\\NetworkChat\\Protocol\\Protocol.csproj",
+        "projectUniqueName": "V:\\repos\\NetworkChat\\Core\\Core.csproj",
+        "projectName": "Core",
+        "projectPath": "V:\\repos\\NetworkChat\\Core\\Core.csproj",
         "packagesPath": "C:\\Users\\Kiririno\\.nuget\\packages\\",
-        "outputPath": "V:\\repos\\NetworkChat\\Protocol\\obj\\",
+        "outputPath": "V:\\repos\\NetworkChat\\Core\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Kiririno\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -88,8 +88,8 @@
           "net5.0": {
             "targetAlias": "net5.0",
             "projectReferences": {
-              "V:\\repos\\NetworkChat\\Protocol\\Protocol.csproj": {
-                "projectPath": "V:\\repos\\NetworkChat\\Protocol\\Protocol.csproj"
+              "V:\\repos\\NetworkChat\\Core\\Core.csproj": {
+                "projectPath": "V:\\repos\\NetworkChat\\Core\\Core.csproj"
               }
             }
           }

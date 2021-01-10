@@ -1,12 +1,10 @@
 ﻿using Server.Settings;
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
-using Server.Models;
+using Server.Data.Services;
 
 namespace Server
 {
@@ -18,13 +16,9 @@ namespace Server
 
         public static readonly UserInfo Info = new(new Guid("77777777-7777-7777-7777-777777777777"), "Server");
 
-        // maybe change to ConcurrentBag
-        private ConcurrentDictionary<Guid, Client> clients = new();
+        private ConcurrentBag<Client> _clients = new();
 
-        public Server()
-        {
-            Init();
-        }
+        public Server() => Init();
 
         private void Init()
         {
@@ -32,7 +26,7 @@ namespace Server
             port = settings.Port;
             listener = new TcpListener(IPAddress.Any, port);
 
-            var auservice = new ActiveUserService();
+            IActiveUserService auservice = new ActiveUserService();
             auservice.DeleteAllActiveUsers();
             
             Logger.Info($"Server initialized on port {port}");
@@ -51,7 +45,7 @@ namespace Server
                     Logger.Debug("Server acepted new client");
 
                     Client client = new(conn);
-                    clients.TryAdd(client.Info.Id, client);
+                    _clients.Add(client);
 
                     Task task = new Task(client.Process);
                     task.Start();

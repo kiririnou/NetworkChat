@@ -1,15 +1,13 @@
 ﻿using Newtonsoft.Json;
-using Protocol;
-using Server.Core;
-using Server.Models;
+using Core;
+using Server.Data.Models;
+using Server.Data.Services;
 using Server.TypeExtensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Server
 {
@@ -17,8 +15,8 @@ namespace Server
     {
         private DataClient client;
         // Why do i have those fields?
-        private UserInfo info = new(Guid.NewGuid());
-        public UserInfo Info => info;
+        //private UserInfo info = new(Guid.NewGuid());
+        //public UserInfo Info => info;
 
         public bool Active { get; private set; } = false;
 
@@ -53,23 +51,16 @@ namespace Server
                 while (!done)
                 {
                     var request = client.ReadMessage();
-
-                    //var test = JsonConvert.SerializeObject(request, Formatting.Indented);
-                    //Logger.Debug(test);
-                    //Logger.Debug(request.GetStringData());
-
-                    var data = request.GetStringData();
-
                     switch (request.Command!)
                     {
-                        case Command.Login: Login(data);                break;
+                        case Command.Login: Login(request);             break;
                         case Command.Logout: done = true;               break;
-                        case Command.Register: Register(data);          break;
+                        case Command.Register: Register(request);       break;
                         case Command.SendMessage: SendMessage(request); break;
                         case Command.GetMessages: GetMessage(request);  break;
                         case Command.SendFile: SendFile(request);       break;
-                        case Command.GetFile: GetFile(request); break;
-                        default: UnknownCommand(); break;
+                        case Command.GetFile: GetFile(request);         break;
+                        default: UnknownCommand();                      break;
                     }
                 }
             }
@@ -84,12 +75,14 @@ namespace Server
                     Logout();
                 client.Close();
                 Active = false;
-                Logger.Info($"Client <{Info.Id}> disconnected.");
+                Logger.Info($"Client <{User.UserId.ToString() ?? "00000000-0000-0000-0000-000000000000"}> disconnected.");
             }
         }
 
-        public void Login(string data)
+        public void Login(Message message)
         {
+            var data = message.GetStringData();
+
             Logger.Debug("In Login");
             Login login = JsonConvert.DeserializeObject<Login>(data);
             Logger.Debug($"Accepted login data: {login.Name}: {login.Password}");
@@ -134,8 +127,10 @@ namespace Server
                 Logger.Debug("Logout: active user hasn't been deleted");
         }
 
-        public void Register(string data)
+        public void Register(Message message)
         {
+            var data = message.GetStringData();
+
             Logger.Debug("In Register");
             Login login = JsonConvert.DeserializeObject<Login>(data);
 

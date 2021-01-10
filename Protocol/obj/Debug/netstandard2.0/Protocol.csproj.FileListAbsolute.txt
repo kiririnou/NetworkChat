@@ -1,9 +1,0 @@
-V:\repos\itstep\networking\hw081220\NetworkChat\Protocol\bin\Debug\netstandard2.0\Protocol.deps.json
-V:\repos\itstep\networking\hw081220\NetworkChat\Protocol\bin\Debug\netstandard2.0\Protocol.dll
-V:\repos\itstep\networking\hw081220\NetworkChat\Protocol\bin\Debug\netstandard2.0\Protocol.pdb
-V:\repos\itstep\networking\hw081220\NetworkChat\Protocol\obj\Debug\netstandard2.0\Protocol.csprojAssemblyReference.cache
-V:\repos\itstep\networking\hw081220\NetworkChat\Protocol\obj\Debug\netstandard2.0\Protocol.AssemblyInfoInputs.cache
-V:\repos\itstep\networking\hw081220\NetworkChat\Protocol\obj\Debug\netstandard2.0\Protocol.AssemblyInfo.cs
-V:\repos\itstep\networking\hw081220\NetworkChat\Protocol\obj\Debug\netstandard2.0\Protocol.csproj.CoreCompileInputs.cache
-V:\repos\itstep\networking\hw081220\NetworkChat\Protocol\obj\Debug\netstandard2.0\Protocol.dll
-V:\repos\itstep\networking\hw081220\NetworkChat\Protocol\obj\Debug\netstandard2.0\Protocol.pdb

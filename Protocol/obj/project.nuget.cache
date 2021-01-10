@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "tjWSd5GYeosYmplzxQ2Fw0U0c0Kfxu/+pxqBtTuihZjXojLwFWolscyDRzvn/k3x+Ft2ubhkN2auZ3Ya+AChJg==",
+  "dgSpecHash": "agr3RUbwf7H1tKuMdd1aH0B0VC73qG0YLXrKYt8v9DTRnmdvC/uwgDKO97dVaGql6B9kOVwhLbe9WB/BQu5VTQ==",
   "success": true,
-  "projectFilePath": "V:\\repos\\NetworkChat\\Protocol\\Protocol.csproj",
+  "projectFilePath": "V:\\repos\\NetworkChat\\Protocol\\Core.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Kiririno\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512"
   ],
