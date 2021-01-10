@@ -11,6 +11,7 @@ namespace Server.Models
         public DbSet<User> Users { get; set; }
         public DbSet<ActiveUser> ActiveUsers { get; set; }
         public DbSet<TextMessage> TextMessages { get; set; }
+        public DbSet<FileData> FileDatas { get; set; }
         //public DbSet<Identity> Identities { get; set; }
 
         private Repository() => Database.EnsureCreated();
@@ -57,6 +58,12 @@ namespace Server.Models
 
         public Guid UserId { get; set; }
         public User User { get; set; }
+    }
+
+    public class FileData
+    {
+        public Guid FileDataId { get; set; }
+        public string Path { get; set; }
     }
 
     //public class Identity

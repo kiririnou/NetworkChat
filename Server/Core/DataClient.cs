@@ -15,11 +15,6 @@ namespace Server.Core
             client = c;
         }
 
-        public void Listen()
-        {
-
-        }
-
         public Message ReadMessage()
         {
             Message msg = null;

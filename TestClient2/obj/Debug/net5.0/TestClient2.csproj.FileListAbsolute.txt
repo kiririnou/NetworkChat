@@ -38,3 +38,5 @@ V:\repos\NetworkChat\TestClient2\obj\Debug\net5.0\TestClient2.dll
 V:\repos\NetworkChat\TestClient2\obj\Debug\net5.0\ref\TestClient2.dll
 V:\repos\NetworkChat\TestClient2\obj\Debug\net5.0\TestClient2.pdb
 V:\repos\NetworkChat\TestClient2\obj\Debug\net5.0\TestClient2.genruntimeconfig.cache
+V:\repos\NetworkChat\TestClient2\bin\Debug\net5.0\text.txt
+V:\repos\NetworkChat\TestClient2\bin\Debug\net5.0\13 Watashi e.mp3

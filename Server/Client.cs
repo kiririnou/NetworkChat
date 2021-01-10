@@ -30,6 +30,7 @@ namespace Server
         private IUserService userService = new UserService();
         private IActiveUserService activeUserService = new ActiveUserService();
         private ITextMessageService textMessagesService = new TextMessageService();
+        private IFileDataService fileDataService = new FileDataService();
 
         public Client(TcpClient c)
         {
@@ -66,8 +67,8 @@ namespace Server
                         case Command.Register: Register(data);          break;
                         case Command.SendMessage: SendMessage(request); break;
                         case Command.GetMessages: GetMessage(request);  break;
-                        case Command.SendFile: break;
-                        case Command.GetFile: break;
+                        case Command.SendFile: SendFile(request);       break;
+                        case Command.GetFile: GetFile(request); break;
                         default: UnknownCommand(); break;
                     }
                 }
@@ -75,7 +76,7 @@ namespace Server
             catch (Exception ex)
             {
                 //throw;
-                Logger.Exception(ex.Message);
+                Logger.Exception($"{ex.GetType()}: {ex.Message}");
             }
             finally
             {
@@ -237,6 +238,67 @@ namespace Server
             });
         }
 
+        // input:
+        //// Data = token:filename:base64_decoded_binary_data
+        public void SendFile(Message message)
+        {
+            var (token, filename, data) = SplitFileMessage(message.GetStringData());
+
+            if (!CheckToken(token))
+            {
+                var msg = "Incorrect token";
+                client.WriteMessage(new()
+                {
+                    FromId = Server.Info.Id,
+                    FromUsername = Server.Info.Name,
+                    Command = Command.Error,
+                    Data = msg.ToBytes()
+                });
+            }
+
+            if (!Directory.Exists("Content"))
+                Directory.CreateDirectory("Content");
+
+            File.WriteAllBytes($"Content/{filename}", Convert.FromBase64String(data));
+            fileDataService.AddFileData(new() { Path = $"Content/{filename}" });
+        }
+
+        // input:
+        //// Data = token:requested_file_name
+        public void GetFile(Message message)
+        {
+            var (token, filename) = SplitTextMessage(message.GetStringData());
+
+            if (!CheckToken(token))
+            {
+                var msg = "Incorrect token";
+                client.WriteMessage(new()
+                {
+                    FromId = Server.Info.Id,
+                    FromUsername = Server.Info.Name,
+                    Command = Command.Error,
+                    Data = msg.ToBytes()
+                });
+            }
+
+            if (!File.Exists($"Content/{filename}"))
+                client.WriteMessage(new()
+                {
+                    FromId = Server.Info.Id,
+                    FromUsername = Server.Info.Name,
+                    Command = Command.Error,
+                    Data = "No such file".ToBytes()
+                });
+
+            client.WriteMessage(new()
+            {
+                FromId = Server.Info.Id,
+                FromUsername = Server.Info.Name,
+                Command = Command.GetFile,
+                Data = Convert.ToBase64String(File.ReadAllBytes($"Content/{filename}")).ToBytes()
+            });
+        }
+
         public void UnknownCommand()
         {
             string msg = "Incorrect command";
@@ -256,6 +318,16 @@ namespace Server
             var text = data[1];
 
             return (token, text);
+        }
+
+        private (string token, string filename, string data) SplitFileMessage(string rawMessage)
+        {
+            var data = rawMessage.Split(new[] { ':' }, 3);
+            var token = data[0];
+            var filename = data[1];
+            var bin = data[2];
+
+            return (token, filename, bin);
         }
 
         //private bool ValidateToken(string msgdata)

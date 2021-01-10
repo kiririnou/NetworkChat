@@ -13,4 +13,13 @@
     <ProjectReference Include="..\Protocol\Protocol.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="13 Watashi e.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="text.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
