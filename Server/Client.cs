@@ -8,16 +8,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using Core.Contracts;
 
 namespace Server
 {
     public class Client
     {
         private DataClient client;
-        // Why do i have those fields?
-        //private UserInfo info = new(Guid.NewGuid());
-        //public UserInfo Info => info;
-
         public bool Active { get; private set; } = false;
 
         private User _user { get; set; }
@@ -38,8 +35,8 @@ namespace Server
 
         // So, the algorithm is next:
         // client connects with login and password -> server check credentials,
-        /// if exist     => generate token, add it to db and send to client,
-        /// if not exist => send message with error
+        //// if exist     => generate token, add it to db and send to client,
+        //// if not exist => send message with error
         // all user actions need a token to complete
         // then user send message -> server takes it -> add to db
         // and then clients should request new updates 
@@ -58,6 +55,8 @@ namespace Server
                         case Command.Register: Register(request);       break;
                         case Command.SendMessage: SendMessage(request); break;
                         case Command.GetMessages: GetMessage(request);  break;
+                        case Command.GetMessagesFromTimestamp:
+                            GetMessagesFromTimestamp(request); break;
                         case Command.SendFile: SendFile(request);       break;
                         case Command.GetFile: GetFile(request);         break;
                         default: UnknownCommand();                      break;
@@ -75,7 +74,7 @@ namespace Server
                     Logout();
                 client.Close();
                 Active = false;
-                Logger.Info($"Client <{User.UserId.ToString() ?? "00000000-0000-0000-0000-000000000000"}> disconnected.");
+                Logger.Info($"Client <{User?.UserId.ToString() ?? "00000000-0000-0000-0000-000000000000"}> disconnected.");
             }
         }
 
@@ -88,10 +87,12 @@ namespace Server
             Logger.Debug($"Accepted login data: {login.Name}: {login.Password}");
 
             _user = userService.GetUserByName(login.Name);
+            Command cmd = default;
             string msg = "";
 
             if (_user == null || _user.Password != login.Password)
             {
+                cmd = Command.Error;
                 msg = "Incorrect login or password";
             }
             else if (_user.Password == login.Password)
@@ -104,7 +105,9 @@ namespace Server
                     UserId = _user.UserId,
                     User = _user
                 });
-                msg = $"Successfully logined: {token}";
+
+                cmd = Command.Login;
+                msg = $"{_user.Name}: {token}";
 
                 _token = token;
             }
@@ -113,7 +116,7 @@ namespace Server
             {
                 FromId = Server.Info.Id,
                 FromUsername = Server.Info.Name,
-                Command = Command.SendMessage,
+                Command = cmd,
                 Data = msg.ToBytes()
             });
         }
@@ -158,6 +161,7 @@ namespace Server
             });
         }
 
+        // TODO: change all input and output to Core.Contracts in Data field of message
         public void SendMessage(Message message)
         {
             var (token, text) = SplitTextMessage(message.GetStringData());
@@ -214,12 +218,55 @@ namespace Server
                 .Reverse()
                 .ToList();
 
-            var r = msgs.Select(m => new TextMessage 
+            var r = msgs.Select(m => new Core.Contracts.TextMessage 
             {
                 TextMessageId = m.TextMessageId,
+                Username = userService.GetUser(m.UserId).Name,
                 Text = m.Text,
-                Timestamp = m.Timestamp,
-                UserId = m.UserId
+                Timestamp = m.Timestamp
+            }).ToList();
+
+            var response = JsonConvert.SerializeObject(r, Formatting.Indented);
+
+            client.WriteMessage(new()
+            {
+                FromId = Server.Info.Id,
+                FromUsername = Server.Info.Name,
+                Command = Command.SendMessage,
+                Data = response.ToBytes()
+            });
+        }
+
+        public void GetMessagesFromTimestamp(Message message)
+        {
+            var (token, text) = SplitTextMessage(message.GetStringData());
+
+            if (!CheckToken(token))
+            {
+                var msg = "Incorrect token";
+                client.WriteMessage(new()
+                {
+                    FromId = Server.Info.Id,
+                    FromUsername = Server.Info.Name,
+                    Command = Command.Error,
+                    Data = msg.ToBytes()
+                });
+            }
+
+            if (!DateTime.TryParse(text, out DateTime dt))
+                dt = DateTime.Now;
+
+            var msgs = textMessagesService
+                .GetAllMessages()
+                .Where(m => m.Timestamp > dt)
+                .ToList();
+
+            var r = msgs.Select(m => new Core.Contracts.TextMessage
+            {
+                TextMessageId = m.TextMessageId,
+                Username = userService.GetUser(m.UserId).Name,
+                Text = m.Text,
+                Timestamp = m.Timestamp
             }).ToList();
 
             var response = JsonConvert.SerializeObject(r, Formatting.Indented);
@@ -276,7 +323,9 @@ namespace Server
                 });
             }
 
-            if (!File.Exists($"Content/{filename}"))
+            var filedata = fileDataService.GetFileData($"Content/{filename}");
+
+            if (filedata is null  || !File.Exists($"Content/{filename}"))
                 client.WriteMessage(new()
                 {
                     FromId = Server.Info.Id,
@@ -285,12 +334,19 @@ namespace Server
                     Data = "No such file".ToBytes()
                 });
 
+            var response = new Core.Contracts.FileMessage
+            {
+                FileMessageId = filedata.FileDataId,
+                Filename = filename,
+                Data = Convert.ToBase64String(File.ReadAllBytes($"Content/{filename}"))
+            };
+
             client.WriteMessage(new()
             {
                 FromId = Server.Info.Id,
                 FromUsername = Server.Info.Name,
                 Command = Command.GetFile,
-                Data = Convert.ToBase64String(File.ReadAllBytes($"Content/{filename}")).ToBytes()
+                Data = JsonConvert.SerializeObject(response).ToBytes()
             });
         }
 
@@ -324,15 +380,6 @@ namespace Server
 
             return (token, filename, bin);
         }
-
-        //private bool ValidateToken(string msgdata)
-        //{
-        //    var data = msgdata.Split(new[] { ':' }, 2);
-        //    var token = data[0];
-        //    var text = data[1];
-
-        //    return CheckToken(token);
-        //}
 
         private bool CheckToken(string token)
         {

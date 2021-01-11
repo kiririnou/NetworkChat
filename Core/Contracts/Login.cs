@@ -1,4 +1,4 @@
-namespace Core
+namespace Core.Contracts
 {
     public class Login
     {

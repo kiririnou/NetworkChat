@@ -5,6 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 using System.Threading;
 using System.IO;
+using Core.Contracts;
 
 namespace TestClient2
 {
@@ -102,6 +103,16 @@ namespace TestClient2
                     var res = client.ReadMessage();
                     Console.WriteLine(res.GetStringData());
                 }
+                else if (cmd == "hist")
+                {
+                    client.WriteMessage(new()
+                    {
+                        Command = Command.GetMessagesFromTimestamp,
+                        Data = Encoding.UTF8.GetBytes($"{token}:{DateTime.Now.AddHours(-1)}")
+                    });
+                    var res = client.ReadMessage();
+                    Console.WriteLine(res.GetStringData());
+                }
                 else if (cmd == "sendf")
                 {
                     string file = "13 Watashi e.mp3";
@@ -113,18 +124,18 @@ namespace TestClient2
                 }
                 else if (cmd == "getf")
                 {
-                    client.WriteMessage(new() 
+                    client.WriteMessage(new()
                     {
                         Command = Command.GetFile,
                         Data = Encoding.UTF8.GetBytes($"{token}:testfile.txt")
                     });
 
                     var rawdata = client.ReadMessage();
+                    var stringdata = rawdata.GetStringData();
+                    var data = JsonConvert.DeserializeObject<Core.Contracts.FileMessage>(stringdata);
 
-                    var data = rawdata.GetStringData().Split(new[] { ':' }, 2);
-                    var bin = data[0];
                     Console.WriteLine("Start writing file");
-                    File.WriteAllBytes("downloaded_file.txt", Convert.FromBase64String(bin));
+                    File.WriteAllBytes("downloaded_file2.txt", Convert.FromBase64String(data.Data));
 
                     Console.WriteLine("Downloaded file");
                 }
