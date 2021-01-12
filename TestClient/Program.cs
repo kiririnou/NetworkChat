@@ -2,6 +2,8 @@
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using Newtonsoft.Json;
+using Core;
 
 namespace TestClient
 {
@@ -28,15 +30,29 @@ namespace TestClient
                 {
                     using (BinaryWriter w = new(ns, Encoding.UTF8, true))
                     {
-                        w.Write(username);
-                        w.Write(msg);
-                    }
+                        Message m = new()
+                        {
+                            //FromId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            FromUsername = username,
+                            Command = Command.SendMessage,
+                            Data = Encoding.UTF8.GetBytes(msg)
+                        };
 
+                        w.Write(JsonConvert.SerializeObject(m));
+
+                        //w.Write(username);
+                        //w.Write(msg);
+                    }
 
                     using (BinaryReader r = new(ns, Encoding.UTF8, true))
                     {
-                        string response = r.ReadString();
-                        Console.WriteLine($"Server: \"{response}\"");
+                        //string response = r.ReadString();
+                        string data = r.ReadString();
+                        Message response = JsonConvert.DeserializeObject<Message>(data);
+
+                        Console.WriteLine($"Server: \"{response.GetStringData()}\"");
+
+                        Console.WriteLine($"\n\nFull response:\n{data}");
                     }
                 }
 

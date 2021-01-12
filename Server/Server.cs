@@ -1,40 +1,37 @@
 ﻿using Server.Settings;
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
+using Server.Data.Services;
 
 namespace Server
 {
-    // chat
     public class Server
     {
         private TcpListener listener;
         private static AppSettings settings;
         private static int port = 12345;
 
-        private ConcurrentDictionary<Guid, Client> clients = new();
+        public static readonly UserInfo Info = new(new Guid("77777777-7777-7777-7777-777777777777"), "Server");
 
-        public Server()
-        {
-            Init();
-        }
+        private ConcurrentBag<Client> _clients = new();
+
+        public Server() => Init();
 
         private void Init()
         {
             settings = Configuration.Get();
             port = settings.Port;
-
-            // TODO: change IPAddress.Any
-            // or not
             listener = new TcpListener(IPAddress.Any, port);
+
+            IActiveUserService auservice = new ActiveUserService();
+            auservice.DeleteAllActiveUsers();
+            
             Logger.Info($"Server initialized on port {port}");
         }
 
-        // TODO: add appropriete way to remove clients
         public void Run()
         {
             try
@@ -48,8 +45,7 @@ namespace Server
                     Logger.Debug("Server acepted new client");
 
                     Client client = new(conn);
-
-                    clients.TryAdd(client.Id, client);
+                    _clients.Add(client);
 
                     Task task = new Task(client.Process);
                     task.Start();
@@ -61,7 +57,7 @@ namespace Server
             }
             finally
             {
-                if (listener is not null)
+                if (listener != null)
                     listener.Stop();
             }
         }
